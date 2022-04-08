@@ -4,14 +4,16 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "currencies")
 data class CurrencyEntity (
     @PrimaryKey
-    val curId: String,
+    var curId: String,
     @ColumnInfo(name = "scale")
-    val scale: String,
+    var scale: Int,
     @ColumnInfo(name = "name")
-    val name: String,
+    var name: String,
+    @ColumnInfo(name = "position")
+    var position: Int,
     @ColumnInfo(name = "checked")
-    val checked: Boolean = true
+    var checked: Boolean = true
     )
