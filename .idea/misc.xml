@@ -5,7 +5,9 @@
       <map>
         <entry key="..\:/JoB/test/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2703125" />
         <entry key="..\:/JoB/test/app/src/main/res/drawable/ic_baseline_navigate_before_24.xml" value="0.264" />
+        <entry key="..\:/JoB/test/app/src/main/res/drawable/ic_baseline_navigate_before_48.xml" value="0.1325" />
         <entry key="..\:/JoB/test/app/src/main/res/drawable/ic_baseline_settings_48.xml" value="0.10572916666666667" />
+        <entry key="..\:/JoB/test/app/src/main/res/drawable/ic_baseline_view_headline_24.xml" value="0.107" />
         <entry key="..\:/JoB/test/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2703125" />
         <entry key="..\:/JoB/test/app/src/main/res/layout/activity_main.xml" value="0.24260355029585798" />
         <entry key="..\:/JoB/test/app/src/main/res/layout/card_currency.xml" value="0.22554347826086957" />
