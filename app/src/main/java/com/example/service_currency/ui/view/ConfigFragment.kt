@@ -1,5 +1,6 @@
 package com.example.service_currency.ui.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,20 +11,22 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.fragment.findNavController
 import com.example.service_currency.R
 import com.example.service_currency.data.db.CurrencyEntity
 import com.example.service_currency.ui.viewmodel.ConfigViewModel
@@ -44,6 +47,7 @@ class ConfigFragment : Fragment() {
     }
 
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun ConfigScreen() {
         return Scaffold(
@@ -51,13 +55,18 @@ class ConfigFragment : Fragment() {
                 TopAppBar(
                     title = { Text(text = "Настройка валют") },
                     navigationIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_navigate_before_48),
-                            contentDescription = "back"
-                        )
+                        IconButton(onClick = { findNavController().popBackStack() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_navigate_before_48),
+                                contentDescription = "back"
+                            )
+                        }
                     },
                     actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {
+                            viewModel.updateCurrenciesInDb(requireContext(),viewModel.listStateCurrency)
+                            findNavController().popBackStack()
+                        }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_baseline_check_48),
                                 contentDescription = "save"
@@ -69,15 +78,24 @@ class ConfigFragment : Fragment() {
         {
             LazyColumn {
                 items(items = viewModel.listStateCurrency) { item ->
-                    Row {
+                    Row(
+                        //verticalAlignment = AlignmentVertical.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        var hehe by remember {mutableStateOf(Pair(mutableStateOf(item.checked),
+                            mutableStateOf(item.position)))}
+
                         Column {
+
                             LaunchedEffect(item) {
                                 Log.d("Hui", item.curId)
                             }
                             Text(item.curId, fontWeight = FontWeight.Bold)
                             Text("${item.scale}  ${item.name}")
                         }
-                        Switch(checked = item.checked, onCheckedChange = { item.checked = it })
+                        Switch(checked = hehe.first.value, onCheckedChange = {hehe.first.value = it
+                            viewModel.listStateCurrency.get(hehe.second.value).checked = hehe.first.value
+                        })
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_view_headline_24),
                             contentDescription = ""

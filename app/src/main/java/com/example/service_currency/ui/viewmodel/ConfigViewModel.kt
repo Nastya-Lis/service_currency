@@ -21,6 +21,9 @@ class ConfigViewModel : ViewModel() {
 
     fun getCurrency(date: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
+           /* repeat(100) {
+                listStateCurrency.add(it.toString())
+            }*/
             val db: RoomDb = RoomDb.getDatabase(context)
             if (db.currencyDao().getCurrencies().isEmpty()) {
                 // db.clearAllTables()
