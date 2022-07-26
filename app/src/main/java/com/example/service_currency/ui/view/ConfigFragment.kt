@@ -82,7 +82,7 @@ class ConfigFragment : Fragment() {
                         //verticalAlignment = AlignmentVertical.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        var hehe by remember {mutableStateOf(Pair(mutableStateOf(item.checked),
+                        var itemState by remember {mutableStateOf(Pair(mutableStateOf(item.checked),
                             mutableStateOf(item.position)))}
 
                         Column {
@@ -93,8 +93,8 @@ class ConfigFragment : Fragment() {
                             Text(item.curId, fontWeight = FontWeight.Bold)
                             Text("${item.scale}  ${item.name}")
                         }
-                        Switch(checked = hehe.first.value, onCheckedChange = {hehe.first.value = it
-                            viewModel.listStateCurrency.get(hehe.second.value).checked = hehe.first.value
+                        Switch(checked = itemState.first.value, onCheckedChange = {itemState.first.value = it
+                            viewModel.listStateCurrency.get(itemState.second.value).checked = itemState.first.value
                         })
                         Icon(
                             painter = painterResource(id = R.drawable.ic_baseline_view_headline_24),
