@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.*
 
 class ConfigViewModel : ViewModel() {
-    private val repository = CurrencyRepository()
+    private val repository = CurrencyRepository
 
     //  val mutableListConfigCurrency = MutableLiveData<List<CurrencyEntity>>(null)
 

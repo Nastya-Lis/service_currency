@@ -23,5 +23,8 @@ abstract class RoomDb: RoomDatabase() {
             }
             return INSTANCE!!
         }
+        fun getDatabase(): RoomDb {
+            return INSTANCE!!
+        }
     }
 }

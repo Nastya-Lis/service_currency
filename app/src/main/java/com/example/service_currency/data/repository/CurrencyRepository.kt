@@ -4,12 +4,14 @@ import android.content.Context
 import com.example.service_currency.data.api.NetWorkService
 import com.example.service_currency.data.db.CurrencyEntity
 import com.example.service_currency.data.db.RoomDb
+import com.example.service_currency.utils.ServiceCurrencyApplication
 import java.util.*
 
-class CurrencyRepository() {
+object CurrencyRepository {
 
     private val apiCurrency = NetWorkService.retrofitService()
-    //private val roomDb: RoomDb = RoomDb.getDatabase(context)
+
+    private val roomDb: RoomDb = RoomDb.getDatabase()
 
     suspend fun getTodayCurrency(date: String) = apiCurrency.getTodayCurrency(date)
 

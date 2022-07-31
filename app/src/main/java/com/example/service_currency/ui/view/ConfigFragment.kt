@@ -7,29 +7,40 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import com.example.service_currency.R
 import com.example.service_currency.data.db.CurrencyEntity
 import com.example.service_currency.ui.viewmodel.ConfigViewModel
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 class ConfigFragment : Fragment() {
 
@@ -50,6 +61,7 @@ class ConfigFragment : Fragment() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun ConfigScreen() {
+        var data = remember { mutableStateOf( viewModel.listStateCurrency )}
         return Scaffold(
             topBar = {
                 TopAppBar(
@@ -64,7 +76,10 @@ class ConfigFragment : Fragment() {
                     },
                     actions = {
                         IconButton(onClick = {
-                            viewModel.updateCurrenciesInDb(requireContext(),viewModel.listStateCurrency)
+                            viewModel.updateCurrenciesInDb(
+                                requireContext(),
+                                viewModel.listStateCurrency
+                            )
                             findNavController().popBackStack()
                         }) {
                             Icon(
@@ -76,30 +91,65 @@ class ConfigFragment : Fragment() {
                 )
             })
         {
-            LazyColumn {
-                items(items = viewModel.listStateCurrency) { item ->
-                    Row(
-                        //verticalAlignment = AlignmentVertical.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        var itemState by remember {mutableStateOf(Pair(mutableStateOf(item.checked),
-                            mutableStateOf(item.position)))}
-
-                        Column {
-
-                            LaunchedEffect(item) {
-                                Log.d("Hui", item.curId)
-                            }
-                            Text(item.curId, fontWeight = FontWeight.Bold)
-                            Text("${item.scale}  ${item.name}")
+            var data1 = remember { mutableStateOf( viewModel.listStateCurrency )}
+            val stateLazy = rememberReorderableLazyListState(
+                onMove = { from, to ->
+                    viewModel.listStateCurrency =
+                        viewModel.listStateCurrency.toMutableList().apply {
+                            add(to.index, removeAt(from.index))
+                            //Log.i("mem", from.index.toString())
                         }
-                        Switch(checked = itemState.first.value, onCheckedChange = {itemState.first.value = it
-                            viewModel.listStateCurrency.get(itemState.second.value).checked = itemState.first.value
-                        })
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_baseline_view_headline_24),
-                            contentDescription = ""
-                        )
+
+                    viewModel.listStateCurrency[from.index].position = to.index
+                    //Log.i("meme",viewModel.listStateCurrency.indexOf(from.key).toString())
+                }
+            )
+            LazyColumn(
+                state = stateLazy.listState,
+                modifier = Modifier
+                    .reorderable(stateLazy)
+                    .detectReorderAfterLongPress(stateLazy)
+            ) {
+                items(items = viewModel.listStateCurrency, { it.curId }) { item ->
+                    ReorderableItem(stateLazy, key = item) { isDragging ->
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 1.5.dp)
+                                .shadow(elevation.value)
+                            //verticalAlignment = AlignmentVertical.Center,
+                        ) {
+                            var itemState by remember {
+                                mutableStateOf(
+                                    Pair(
+                                        mutableStateOf(item.checked),
+                                        mutableStateOf(item.position)
+                                    )
+                                )
+                            }
+
+                            Column(Modifier.weight(3f)) {
+                                LaunchedEffect(item) {
+                                    Log.d("Hui", item.curId)
+                                }
+                                Text(item.curId, fontWeight = FontWeight.Bold)
+                                Text("${item.scale}  ${item.name}")
+                            }
+                            Box(modifier = Modifier.weight(1.5f)){
+                                Switch(checked = itemState.first.value, onCheckedChange = {
+                                    itemState.first.value = it
+                                    viewModel.listStateCurrency.get(itemState.second.value).checked =
+                                        itemState.first.value
+                                })
+                            }
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_view_headline_24),
+                                contentDescription = "",
+                                modifier = Modifier.paddingFromBaseline(top = 8.dp)
+                            )
+                        }
                     }
                 }
             }
