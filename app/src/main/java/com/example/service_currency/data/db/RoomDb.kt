@@ -5,14 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CurrencyEntity::class], version = 2)
+@Database(entities = [CurrencyEntity::class], version = 4)
 abstract class RoomDb: RoomDatabase() {
 
     abstract fun currencyDao(): Dao
 
     companion object{
         private var INSTANCE: RoomDb? = null
-        fun getDatabase(context:Context): RoomDb {
+        lateinit var context: Context
+
+        fun getDatabase(): RoomDb {
             if (INSTANCE == null) {
                 synchronized(this) {
                     INSTANCE =
@@ -21,9 +23,6 @@ abstract class RoomDb: RoomDatabase() {
                             .build()
                 }
             }
-            return INSTANCE!!
-        }
-        fun getDatabase(): RoomDb {
             return INSTANCE!!
         }
     }

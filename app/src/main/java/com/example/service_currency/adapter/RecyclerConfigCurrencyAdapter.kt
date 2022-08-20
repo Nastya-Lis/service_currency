@@ -54,7 +54,7 @@ class RecyclerConfigCurrencyAdapter(/*private var currencies: List<CurrencyEntit
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        val room : RoomDb = RoomDb.getDatabase(context)
+        val room : RoomDb = RoomDb.getDatabase()
 
         val currency = differ.currentList[position]
 

@@ -41,6 +41,7 @@ import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
+import java.time.LocalDate
 
 class ConfigFragment : Fragment() {
 
@@ -51,7 +52,7 @@ class ConfigFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel.getCurrency("2022-04-29", requireContext())
+        viewModel.getCurrency(LocalDate.now(), requireContext())
         return ComposeView(requireContext()).apply {
             setContent { ConfigScreen() }
         }
@@ -61,7 +62,6 @@ class ConfigFragment : Fragment() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun ConfigScreen() {
-        var data = remember { mutableStateOf( viewModel.listStateCurrency )}
         return Scaffold(
             topBar = {
                 TopAppBar(
@@ -91,17 +91,15 @@ class ConfigFragment : Fragment() {
                 )
             })
         {
-            var data1 = remember { mutableStateOf( viewModel.listStateCurrency )}
             val stateLazy = rememberReorderableLazyListState(
                 onMove = { from, to ->
                     viewModel.listStateCurrency =
-                        viewModel.listStateCurrency.toMutableList().apply {
+                        viewModel.listStateCurrency.apply {
                             add(to.index, removeAt(from.index))
-                            //Log.i("mem", from.index.toString())
                         }
 
-                    viewModel.listStateCurrency[from.index].position = to.index
-                    //Log.i("meme",viewModel.listStateCurrency.indexOf(from.key).toString())
+                    viewModel.listStateCurrency.first{it.curId == from.key}.position = to.index
+                    viewModel.listStateCurrency.first{it.curId == to.key}.position = from.index
                 }
             )
             LazyColumn(
@@ -110,7 +108,7 @@ class ConfigFragment : Fragment() {
                     .reorderable(stateLazy)
                     .detectReorderAfterLongPress(stateLazy)
             ) {
-                items(items = viewModel.listStateCurrency, { it.curId }) { item ->
+                items(items = viewModel.listStateCurrency.sortedBy { it.position }, { it.curId }) { item ->
                     ReorderableItem(stateLazy, key = item) { isDragging ->
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         Row(
@@ -118,29 +116,24 @@ class ConfigFragment : Fragment() {
                                 .fillMaxWidth()
                                 .padding(vertical = 1.5.dp)
                                 .shadow(elevation.value)
-                            //verticalAlignment = AlignmentVertical.Center,
                         ) {
-                            var itemState by remember {
-                                mutableStateOf(
-                                    Pair(
-                                        mutableStateOf(item.checked),
-                                        mutableStateOf(item.position)
-                                    )
-                                )
+
+                            var itemChecked = remember {
+                                mutableStateOf(item.checked)
+                            }
+                            var itemPosition = remember{
+                                mutableStateOf(item.position)
                             }
 
                             Column(Modifier.weight(3f)) {
-                                LaunchedEffect(item) {
-                                    Log.d("Hui", item.curId)
-                                }
                                 Text(item.curId, fontWeight = FontWeight.Bold)
                                 Text("${item.scale}  ${item.name}")
                             }
                             Box(modifier = Modifier.weight(1.5f)){
-                                Switch(checked = itemState.first.value, onCheckedChange = {
-                                    itemState.first.value = it
-                                    viewModel.listStateCurrency.get(itemState.second.value).checked =
-                                        itemState.first.value
+                                Switch(checked = itemChecked.value, onCheckedChange = {
+                                    itemChecked.value = it
+                                    viewModel.listStateCurrency[itemPosition.value].checked =
+                                        itemChecked.value
                                 })
                             }
 
@@ -155,6 +148,9 @@ class ConfigFragment : Fragment() {
             }
         }
     }
+
+
+    /*Code non Compose*/
 
     /*   private val viewModel: ConfigViewModel by viewModels()
        var listOfShit: List<CurrencyEntity> = listOf()

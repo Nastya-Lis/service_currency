@@ -17,7 +17,5 @@ object CurrencyRepository {
 
     suspend fun getTomorrowOrYesterdayCurrency(date: String) = apiCurrency.getTomorrowCurrency(date)
 
-    /*fun insertDbCurrencies(currencies: List<CurrencyEntity>) =
-        roomDb.insertFirstTimeCurrencies(currencies)*/
-
+    suspend fun getCurrencyEntities() = roomDb.currencyDao().getCurrencies()
 }

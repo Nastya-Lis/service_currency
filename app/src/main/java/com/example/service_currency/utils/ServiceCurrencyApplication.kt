@@ -5,6 +5,6 @@ import com.example.service_currency.data.db.RoomDb
 
 class ServiceCurrencyApplication : Application() {
     init {
-        RoomDb.getDatabase(this)
+        RoomDb.context = this
     }
 }

@@ -16,5 +16,6 @@ data class Currency(
     @SerializedName("Cur_Name")
     val curName: String,
     @SerializedName("Cur_OfficialRate")
-    val curOfficialRate: Double
+    val curOfficialRate: Double,
+    var curPosition: Int
     )

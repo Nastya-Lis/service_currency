@@ -8,26 +8,28 @@ import androidx.lifecycle.viewModelScope
 import com.example.service_currency.data.db.CurrencyEntity
 import com.example.service_currency.data.db.RoomDb
 import com.example.service_currency.data.repository.CurrencyRepository
+import com.example.service_currency.data.converter.DateConvert
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.*
+import java.time.LocalDate
 
 class ConfigViewModel : ViewModel() {
     private val repository = CurrencyRepository
 
     //  val mutableListConfigCurrency = MutableLiveData<List<CurrencyEntity>>(null)
 
-    var listStateCurrency: List<CurrencyEntity> by mutableStateOf(emptyList())
+    var listStateCurrency = mutableStateListOf<CurrencyEntity>()
 
-    fun getCurrency(date: String, context: Context) {
+    fun getCurrency(date: LocalDate, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
            /* repeat(100) {
                 listStateCurrency.add(it.toString())
             }*/
-            val db: RoomDb = RoomDb.getDatabase(context)
+            val db: RoomDb = RoomDb.getDatabase()
             if (db.currencyDao().getCurrencies().isEmpty()) {
-                // db.clearAllTables()
-                val listCurrency = repository.getTodayCurrency(date)
+               // db.clearAllTables()
+                val listCurrency = repository.getTodayCurrency(DateConvert.formatForRequest(date))
                 val listCurrencyEntity = listCurrency.map {
                     CurrencyEntity(
                         it.curAbbreviation,
@@ -36,11 +38,12 @@ class ConfigViewModel : ViewModel() {
                         listCurrency.indexOf(it)
                     )
                 }
-                listStateCurrency = listCurrencyEntity
+                listStateCurrency.addAll(listCurrencyEntity)
                 db.currencyDao().insertFirstTimeAllCurrencies(listCurrencyEntity)
 
             } else {
-                listStateCurrency = db.currencyDao().getCurrencies()
+               //db.clearAllTables()
+               listStateCurrency.addAll(db.currencyDao().getCurrencies())
             }
         }
 
@@ -70,7 +73,7 @@ class ConfigViewModel : ViewModel() {
 
     fun updateCurrenciesInDb(context: Context, list: List<CurrencyEntity>) {
         viewModelScope.launch(Dispatchers.IO) {
-            val db: RoomDb = RoomDb.getDatabase(context)
+            val db: RoomDb = RoomDb.getDatabase()
             if (/*mutableListConfigCurrency.value?.isNotEmpty()*/ list.isNotEmpty()) {
                 //val entities = mutableListConfigCurrency.value
                 db.currencyDao().updateListCurrency(/*entities!!*/list)
